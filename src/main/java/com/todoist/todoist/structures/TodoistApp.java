@@ -53,7 +53,8 @@ public class TodoistApp extends Application {
     }
 
     public void switchPage(String name) {
-        panel.setBody(pages.get(name).getContent());
+        currentPage = pages.get(name);
+        panel.setBody(currentPage.getContent());
     }
 
     private void renderButton(VBox vbox, String pageName, Page page) {
@@ -90,6 +91,7 @@ public class TodoistApp extends Application {
         panel.getStyleClass().add("panel-primary");
 
         switchPage("Dashboard");
+        currentPage = pages.get("Dashboard");
 
         Scene scene = new Scene(panel, 1000, 500);
         scene.getStylesheets().add(BootstrapFX.bootstrapFXStylesheet());       //(3)
