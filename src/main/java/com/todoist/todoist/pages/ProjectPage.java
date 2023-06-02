@@ -123,6 +123,7 @@ public class ProjectPage extends Page {
                     this.app.taskController.insert(task);
                     newTaskTextField.setText("");
                     renderTask(vbox, task, vbox.getChildren().size() - 1);
+                    this.app.loadPages();
                 }
             });
             vbox.getChildren().add(newTaskTextField);
@@ -151,7 +152,7 @@ public class ProjectPage extends Page {
             tagsHBox = new HBox();
             task.tags.forEach(tag -> {
                 var tagLabel = new Label(tag.title);
-                tagLabel.setStyle("-fx-background-color: #" + Integer.toHexString(tag.color));
+                tagLabel.setStyle("-fx-background-color: #" + tag.color);
                 tagLabel.getStyleClass().setAll("badge");
             });
         }

@@ -1,14 +1,18 @@
 package com.todoist.todoist.modals;
 
+import com.mongodb.client.model.Updates;
 import com.todoist.todoist.models.Project;
 import com.todoist.todoist.models.Tag;
 import com.todoist.todoist.structures.BaseModal;
 import com.todoist.todoist.structures.TodoistApp;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.ColorPicker;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -38,17 +42,21 @@ public class EditTagsModal extends BaseModal {
         panel1.getStyleClass().addAll("panel-primary");
 
         VBox tagsVbox = new VBox();
+        tagsVbox.setSpacing(10);
         panel1.setBody(tagsVbox);
 
-        tags.forEach((tagId, tag) -> {
-            TextField tagTitleTextField = new TextField(tag.title);
-            Rectangle rect = new Rectangle(50, 50);
-            rect.setStyle("-fx-background-color: #" + Integer.toHexString(tag.color));
-            HBox tagHbox = new HBox();
-            tagsVbox.getChildren().add(tagHbox);
-        });
+        tags.forEach((tagId, tag) -> renderTag(tagsVbox, tag, -1));
 
         Button addTagButton = new Button("+ Add Tag");
+        addTagButton.setOnAction(e -> {
+            Tag newTag = new Tag(
+                    "New Label",
+                    Integer.toHexString((int)(Math.random() * 0xFFFFFF)),
+                    project);
+            this.app.tagController.insert(newTag);
+            tags.put(newTag.id, newTag);
+            renderTag(tagsVbox, newTag, tagsVbox.getChildren().size() - 1);
+        });
         addTagButton.getStyleClass().setAll("btn", "btn-primary");
         tagsVbox.getChildren().add(addTagButton);
 
@@ -58,5 +66,33 @@ public class EditTagsModal extends BaseModal {
         stage.setScene(scene);
         stage.sizeToScene();
         return stage;
+    }
+
+    public void renderTag(VBox tagsVbox, Tag tag, int order) {
+        TextField tagTitleTextField = new TextField(tag.title);
+        tagTitleTextField.setOnKeyPressed(ke -> {
+            String tagTitle = tagTitleTextField.getText();
+            if (tagTitle == null || tagTitle.equals(""))
+                return;
+            if (ke.getCode().equals(KeyCode.ENTER)) {
+                tag.title = tagTitle;
+                var updates = Updates.set("title", tag.title);
+                this.app.tagController.update(tag, updates);
+                tagsVbox.requestFocus();
+            }
+        });
+        ColorPicker colorPicker = new ColorPicker();
+        colorPicker.setOnAction(e -> {
+            tag.color = colorPicker.getValue().toString().substring(0, 8);
+            var updates = Updates.set("color", tag.color);
+            this.app.tagController.update(tag, updates);
+        });
+        colorPicker.setValue(Color.web(tag.color));
+        HBox tagHbox = new HBox(tagTitleTextField, colorPicker);
+        tagHbox.setSpacing(10);
+        if (order == -1)
+            tagsVbox.getChildren().add(tagHbox);
+        else
+            tagsVbox.getChildren().add(order, tagHbox);
     }
 }

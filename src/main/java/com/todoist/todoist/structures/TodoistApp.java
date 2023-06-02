@@ -19,6 +19,7 @@ import javafx.scene.Cursor;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import org.bson.types.ObjectId;
@@ -128,6 +129,8 @@ public class TodoistApp extends Application {
     @Override
     public void start(Stage primaryStage) {
         this.stage = primaryStage;
+//        Image image = new Image("/Ya Welak.jpg");
+//        this.stage.getIcons().add(image);
         loadPages();
         panel = new Panel("Todoist");
         panel.setLeft(getSidebar());

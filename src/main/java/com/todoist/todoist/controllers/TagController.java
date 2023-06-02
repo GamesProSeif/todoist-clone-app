@@ -9,7 +9,7 @@ import org.bson.Document;
 public class TagController extends BaseController<Tag> {
     private final ProjectController projectController;
     public TagController(MongoDatabase db, ProjectController projectController) {
-        super(db, "labels");
+        super(db, "tags");
         this.projectController = projectController;
     }
 
@@ -20,7 +20,7 @@ public class TagController extends BaseController<Tag> {
         return new Tag(
                 doc.getObjectId("_id"),
                 doc.getString("title"),
-                doc.getInteger("color"),
+                doc.getString("color"),
                 project
         );
     }
