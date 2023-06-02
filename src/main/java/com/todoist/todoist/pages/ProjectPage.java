@@ -26,9 +26,11 @@ public class ProjectPage extends Page {
         Label label = new Label("Project: " + project.title);
         VBox vbox = new VBox();
         vbox.getChildren().add(label);
+        vbox.setSpacing(20);
         pane.setCenter(vbox);
 
         HBox hbox1 = new HBox();
+        hbox1.setSpacing(10);
         Group grp = new Group();
 
         label.getStyleClass().addAll("panel-heading","alert-info","text-heading","h4","b","btn-lg");
@@ -37,10 +39,11 @@ public class ProjectPage extends Page {
         tasks.forEach((id, task) -> {
             if (task.project.id.equals(project.id)) {
                 Label taskLabel = new Label(task.title);
-                //taskLabel.getStyleClass().addAll("panel-primary","h6","bg-primary","text-heading");
-                //Rectangle r = new Rectangle(100,100);
-                //r.setFill(Color.AQUA);
-                //grp.getChildren().addAll(taskLabel);
+                taskLabel.setText("    "+taskLabel.getText()+"    ");
+                taskLabel.getStyleClass().addAll("panel-primary","btn-lg","lbl-info","text-heading");
+                /*Rectangle r = new Rectangle(100,100);
+                r.setFill(Color.AQUA);
+                grp.getChildren().addAll(taskLabel);*/
 
                 hbox1.getChildren().addAll(taskLabel);
                 vbox.getChildren().add(hbox1);
