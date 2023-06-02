@@ -14,11 +14,11 @@ public class Task extends BaseModel {
     public String attachment;
     public Project project;
     public Section section;
-    public ArrayList<Label> labels;
+    public ArrayList<Tag> tags;
 
     public Task() {
         this.id = new ObjectId();
-        this.labels = new ArrayList<>();
+        this.tags = new ArrayList<>();
     }
 
     public Task(
@@ -29,7 +29,7 @@ public class Task extends BaseModel {
             String attachment,
             Project project,
             Section section,
-            ArrayList<Label> labels
+            ArrayList<Tag> tags
     ) {
         this();
         this.title = title;
@@ -39,7 +39,7 @@ public class Task extends BaseModel {
         this.attachment = attachment;
         this.project = project;
         this.section = section;
-        this.labels = labels;
+        this.tags = tags;
     }
 
     public Task(
@@ -51,9 +51,9 @@ public class Task extends BaseModel {
             String attachment,
             Project project,
             Section section,
-            ArrayList<Label> labels
+            ArrayList<Tag> tags
     ) {
-        this(title, description, dueDate, checked, attachment, project, section, labels);
+        this(title, description, dueDate, checked, attachment, project, section, tags);
         this.id = id;
     }
 }

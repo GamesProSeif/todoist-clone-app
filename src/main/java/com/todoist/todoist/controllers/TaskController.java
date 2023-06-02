@@ -1,7 +1,7 @@
 package com.todoist.todoist.controllers;
 
 import com.mongodb.client.MongoDatabase;
-import com.todoist.todoist.models.Label;
+import com.todoist.todoist.models.Tag;
 import com.todoist.todoist.models.Project;
 import com.todoist.todoist.models.Section;
 import com.todoist.todoist.models.Task;
@@ -9,24 +9,22 @@ import com.todoist.todoist.structures.BaseController;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class TaskController extends BaseController<Task> {
     private final ProjectController projectController;
-    private final LabelController labelController;
+    private final TagController tagController;
     private final SectionController sectionController;
 
     public TaskController(
             MongoDatabase db,
             ProjectController projectController,
-            LabelController labelController,
+            TagController tagController,
             SectionController sectionController
     ) {
         super(db, "tasks");
         this.projectController = projectController;
-        this.labelController = labelController;
+        this.tagController = tagController;
         this.sectionController = sectionController;
     }
 
@@ -36,11 +34,11 @@ public class TaskController extends BaseController<Task> {
         Section section = null;
         if (doc.get("section") != null)
             section = sectionController.findById(doc.getObjectId("section"));
-        ArrayList<Label> labels = new ArrayList<Label>();
+        ArrayList<Tag> tags = new ArrayList<Tag>();
         List<ObjectId> labelsIds = doc.getList("labels", ObjectId.class);
 
         labelsIds.forEach(id -> {
-            labels.add(labelController.findById(id));
+            tags.add(tagController.findById(id));
         });
 
         return new Task(
@@ -52,7 +50,7 @@ public class TaskController extends BaseController<Task> {
                 doc.getString("attachment"),
                 project,
                 section,
-                labels
+                tags
         );
     }
 
@@ -60,7 +58,7 @@ public class TaskController extends BaseController<Task> {
     protected Document modelToDocument(Task task) {
         ArrayList<ObjectId> labelsList = new ArrayList<>();
 
-        task.labels.forEach(label -> labelsList.add(label.id));
+        task.tags.forEach(tag -> labelsList.add(tag.id));
 
         return new Document()
                 .append("_id", task.id)

@@ -1,55 +1,167 @@
 package com.todoist.todoist.pages;
 
+import com.todoist.todoist.modals.AddSectionModal;
+import com.todoist.todoist.modals.EditTagsModal;
 import com.todoist.todoist.models.Project;
+import com.todoist.todoist.models.Section;
+import com.todoist.todoist.models.Tag;
+import com.todoist.todoist.models.Task;
 import com.todoist.todoist.structures.Page;
 import com.todoist.todoist.structures.TodoistApp;
-import javafx.scene.Group;
+import javafx.geometry.Insets;
+import javafx.scene.Cursor;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Rectangle;
-import javafx.scene.text.Font;
+import org.bson.types.ObjectId;
+
+import java.util.ArrayList;
+import java.util.HashMap;
 
 public class ProjectPage extends Page {
-    Project project;
+    public final Project project;
+    HashMap<ObjectId, Tag> tags;
+    HashMap<ObjectId, Section> sections;
+    HashMap<ObjectId, Task> tasks;
+
     public ProjectPage(TodoistApp app, Project project) {
         super(app);
         this.project = project;
+        tags = new HashMap<>();
+        sections = new HashMap<>();
+        tasks = new HashMap<>();
+    }
+
+    private void fetchData() {
+        this.app.tagController.list().forEach((tagId, tag) -> {
+            if (tag.project.id.equals(project.id))
+                tags.put(tagId, tag);
+        });
+
+        this.app.sectionController.list().forEach((sectionId, section) -> {
+            if (section.project.id.equals(project.id))
+                sections.put(sectionId, section);
+        });
+
+        this.app.taskController.list().forEach((taskId, task) -> {
+            if (task.project.id.equals(project.id))
+                tasks.put(taskId, task);
+        });
     }
 
     @Override
     public Pane getContent() {
+        fetchData();
+
         BorderPane pane = new BorderPane();
-        Label label = new Label("Project: " + project.title);
-        VBox vbox = new VBox();
-        vbox.getChildren().add(label);
-        vbox.setSpacing(20);
-        pane.setCenter(vbox);
+        Label label = new Label(project.title);
+        label.getStyleClass().addAll(
+                "panel-heading","alert","text-heading","h4","b","btn-lg"
+        );
 
-        HBox hbox1 = new HBox();
-        hbox1.setSpacing(10);
-        Group grp = new Group();
-
-        label.getStyleClass().addAll("panel-heading","alert-info","text-heading","h4","b","btn-lg");
-
-        var tasks = app.taskController.list();
-        tasks.forEach((id, task) -> {
-            if (task.project.id.equals(project.id)) {
-                Label taskLabel = new Label(task.title);
-                taskLabel.setText("    "+taskLabel.getText()+"    ");
-                taskLabel.getStyleClass().addAll("panel-primary","btn-lg","lbl-info","text-heading");
-                /*Rectangle r = new Rectangle(100,100);
-                r.setFill(Color.AQUA);
-                grp.getChildren().addAll(taskLabel);*/
-
-                hbox1.getChildren().addAll(taskLabel);
-                vbox.getChildren().add(hbox1);
-            }
+        Button deleteProjectButton = new Button("Delete Project");
+        deleteProjectButton.getStyleClass().setAll("btn", "btn-danger");
+        deleteProjectButton.setOnAction(e -> {
+            this.app.switchPage("Dashboard");
+            tasks.forEach((taskId, task) -> this.app.taskController.delete(task));
+            tags.forEach((tagId, tag) -> this.app.tagController.delete(tag));
+            sections.forEach((sectionId, section) -> this.app.sectionController.delete(section));
+            this.app.projectController.delete(project);
+            this.app.reload();
         });
 
+        Button editTagsButton = new Button("Edit Tags");
+        editTagsButton.getStyleClass().setAll("btn", "btn-warning");
+        editTagsButton.setOnAction(e ->
+            (new EditTagsModal(this.app, project, tags)).getContent().show());
+        BorderPane headerPane = new BorderPane();
+        headerPane.setLeft(label);
+        HBox buttonHBox = new HBox(editTagsButton, deleteProjectButton);
+        buttonHBox.setSpacing(10);
+        headerPane.setRight(buttonHBox);
+        pane.setTop(headerPane);
+
+        HBox hbox = new HBox();
+        hbox.setPadding(new Insets(10, 0, 0, 0));
+        pane.setCenter(hbox);
+        hbox.setSpacing(10);
+        hbox.setFillHeight(false);
+
+        sections.forEach((sectionId, section) -> {
+            VBox vbox = new VBox();
+            vbox.setStyle("-fx-background-color: rgba(0,0,0,0.1)");
+            vbox.getStyleClass().setAll("alert");
+            vbox.setPadding(new Insets(10));
+            vbox.setSpacing(10);
+            vbox.setMinWidth(200);
+            hbox.getChildren().add(vbox);
+            Label sectionTitleLabel = new Label(section.title);
+            sectionTitleLabel.getStyleClass().setAll("b");
+            vbox.getChildren().add(sectionTitleLabel);
+            tasks.forEach((taskId, task) -> {
+                if (!task.section.id.equals(sectionId))
+                    return;
+                renderTask(vbox, task, -1);
+            });
+            TextField newTaskTextField = new TextField();
+            newTaskTextField.setPromptText("Add Task...");
+            newTaskTextField.setOnKeyPressed(e -> {
+                if (e.getCode().equals(KeyCode.ENTER)) {
+                    String taskTitle = newTaskTextField.getText();
+                    if (taskTitle == null || taskTitle.equals(""))
+                        return;
+                    Task task = new Task(
+                            taskTitle, null, null,
+                            false, null, this.project,
+                            section, new ArrayList<>()
+                    );
+                    this.app.taskController.insert(task);
+                    newTaskTextField.setText("");
+                    renderTask(vbox, task, vbox.getChildren().size() - 1);
+                }
+            });
+            vbox.getChildren().add(newTaskTextField);
+        });
+
+        Button addSectionButton = new Button("+ New Section");
+        addSectionButton.setPrefSize(200, 30);
+        addSectionButton.setOnAction(e -> (new AddSectionModal(this.app, this)).getContent().show() );
+        addSectionButton.getStyleClass().setAll("btn", "btn-primary");
+        hbox.getChildren().add(addSectionButton);
+
         return pane;
+    }
+
+    private void renderTask(VBox vbox, Task task, int index) {
+        VBox taskVbox = new VBox();
+        taskVbox.setOnMouseClicked(me -> app.switchPage("task:" + task.id));
+        taskVbox.setOnMouseEntered(me -> app.panel.setCursor(Cursor.HAND));
+        taskVbox.setOnMouseExited(me -> app.panel.setCursor(Cursor.DEFAULT));
+        taskVbox.setStyle("-fx-background-color: rgba(0,0,0,0.15); -fx-background-radius: 5px");
+//        taskVbox.getStyleClass().setAll("alert");
+        taskVbox.setSpacing(5);
+        taskVbox.setPadding(new Insets(10));
+        HBox tagsHBox = null;
+        if (task.tags.size() > 0) {
+            tagsHBox = new HBox();
+            task.tags.forEach(tag -> {
+                var tagLabel = new Label(tag.title);
+                tagLabel.setStyle("-fx-background-color: #" + Integer.toHexString(tag.color));
+                tagLabel.getStyleClass().setAll("badge");
+            });
+        }
+        if (tagsHBox != null)
+            taskVbox.getChildren().add(tagsHBox);
+        Label taskLabel = new Label(task.title);
+        taskVbox.getChildren().add(taskLabel);
+        if (index == -1)
+            vbox.getChildren().add(taskVbox);
+        else
+            vbox.getChildren().add(index, taskVbox);
     }
 }
