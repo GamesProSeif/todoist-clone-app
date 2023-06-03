@@ -106,7 +106,7 @@ public class EditTagsModal extends BaseModal {
         });
         ColorPicker colorPicker = new ColorPicker();
         colorPicker.setOnAction(e -> {
-            tag.color = colorPicker.getValue().toString().substring(0, 8);
+            tag.color = colorPicker.getValue().toString().substring(2, 8);
             var updates = Updates.set("color", tag.color);
             this.app.tagController.update(tag, updates);
         });
