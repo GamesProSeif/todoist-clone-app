@@ -15,17 +15,21 @@ import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
-import javafx.scene.Cursor;
+
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
+
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import org.bson.types.ObjectId;
 import org.kordamp.bootstrapfx.BootstrapFX;
 import org.kordamp.bootstrapfx.scene.layout.Panel;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.util.HashMap;
 
 public class TodoistApp extends Application {
@@ -100,8 +104,8 @@ public class TodoistApp extends Application {
                     e -> switchPage(pageName)
             );
         });
-
-        vbox.getChildren().add(new Label("Projects"));
+        Label proj = new Label("Projects");
+        vbox.getChildren().add(proj);
         pages.forEach((pageName, page) -> {
             if (!(page instanceof ProjectPage))
                 return;
@@ -117,6 +121,8 @@ public class TodoistApp extends Application {
                 "+ New Project",
                 e -> (new AddProjectModal(this)).getContent().show()
         );
+        //vbox.setStyle("-fx-background-color: rgba(0,155,255,1)");
+        vbox.getStyleClass().addAll("btn-lg","alert-info");
         return vbox;
     }
 
@@ -127,13 +133,15 @@ public class TodoistApp extends Application {
     }
 
     @Override
-    public void start(Stage primaryStage) {
+    public void start(Stage primaryStage) throws FileNotFoundException {
         this.stage = primaryStage;
-//        Image image = new Image("/Ya Welak.jpg");
-//        this.stage.getIcons().add(image);
+        InputStream s1 = new FileInputStream("src/main/resources/Task Flow2.png");
+        Image image = new Image(s1);
+        this.stage.getIcons().add(image);
         loadPages();
-        panel = new Panel("Todoist");
+        panel = new Panel("Task Flow");
         panel.setLeft(getSidebar());
+
         panel.getStyleClass().add("panel-primary");
 
         switchPage("Dashboard");
@@ -142,7 +150,7 @@ public class TodoistApp extends Application {
         Scene scene = new Scene(panel, 1000, 500);
         scene.getStylesheets().add(BootstrapFX.bootstrapFXStylesheet());       //(3)
 
-        this.stage.setTitle("Todoist");
+        this.stage.setTitle("Task Flow");
         this.stage.setScene(scene);
         this.stage.sizeToScene();
         this.stage.show();
