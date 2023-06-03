@@ -10,12 +10,17 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import org.kordamp.bootstrapfx.BootstrapFX;
 import org.kordamp.bootstrapfx.scene.layout.Panel;
+
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 
 public class AddSectionModal extends BaseModal {
     Project project;
@@ -64,6 +69,16 @@ public class AddSectionModal extends BaseModal {
         Scene scene = new Scene(panel1,400,200);
         scene.getStylesheets().add(BootstrapFX.bootstrapFXStylesheet());
 
+        InputStream s1 = null;
+        try {
+            s1 = new FileInputStream("src/main/resources/Task Flow2.png");
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+        Image image = new Image(s1);
+        stage.getIcons().add(image);
+        stage.setMinHeight(200);
+        stage.setMinWidth(400);
         stage.setScene(scene);
         stage.sizeToScene();
         return stage;
