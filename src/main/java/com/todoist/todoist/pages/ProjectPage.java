@@ -150,7 +150,7 @@ public class ProjectPage extends Page {
                     return;
                 Task task = new Task(
                         taskTitle, null, null,
-                        false, null, this.project,
+                        false, this.project,
                         section, new ArrayList<>()
                 );
                 this.app.taskController.insert(task);
@@ -171,14 +171,17 @@ public class ProjectPage extends Page {
 //        taskVbox.getStyleClass().setAll("alert");
         taskVbox.setSpacing(5);
         taskVbox.setPadding(new Insets(10));
-        HBox tagsHBox = null;
+        HBox tagsHBox;
         if (task.tags.size() > 0) {
             tagsHBox = new HBox();
             task.tags.forEach(tag -> {
                 var tagLabel = new Label(tag.title);
-                tagLabel.setStyle("-fx-background-color: #" + tag.color);
+                tagLabel.setStyle("-fx-background-color: #" + tag.color.substring(2));
                 tagLabel.getStyleClass().setAll("badge");
+                tagsHBox.getChildren().add(tagLabel);
             });
+        } else {
+            tagsHBox = null;
         }
         if (tagsHBox != null)
             taskVbox.getChildren().add(tagsHBox);

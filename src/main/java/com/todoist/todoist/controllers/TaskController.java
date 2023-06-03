@@ -1,14 +1,18 @@
 package com.todoist.todoist.controllers;
 
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.Updates;
 import com.todoist.todoist.models.Tag;
 import com.todoist.todoist.models.Project;
 import com.todoist.todoist.models.Section;
 import com.todoist.todoist.models.Task;
 import com.todoist.todoist.structures.BaseController;
 import org.bson.Document;
+import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.*;
 
 public class TaskController extends BaseController<Task> {
@@ -35,9 +39,9 @@ public class TaskController extends BaseController<Task> {
         if (doc.get("section") != null)
             section = sectionController.findById(doc.getObjectId("section"));
         ArrayList<Tag> tags = new ArrayList<Tag>();
-        List<ObjectId> labelsIds = doc.getList("labels", ObjectId.class);
+        List<ObjectId> tagsId = doc.getList("tags", ObjectId.class);
 
-        labelsIds.forEach(id -> {
+         tagsId.forEach(id -> {
             tags.add(tagController.findById(id));
         });
 
@@ -45,9 +49,10 @@ public class TaskController extends BaseController<Task> {
                 doc.getObjectId("_id"),
                 doc.getString("title"),
                 doc.getString("description"),
-                doc.getDate("date"),
+                doc.getDate("date") != null
+                    ? LocalDate.ofInstant(doc.getDate("date").toInstant(), ZoneId.systemDefault())
+                    : null,
                 doc.getBoolean("checked"),
-                doc.getString("attachment"),
                 project,
                 section,
                 tags
@@ -56,9 +61,9 @@ public class TaskController extends BaseController<Task> {
 
     @Override
     protected Document modelToDocument(Task task) {
-        ArrayList<ObjectId> labelsList = new ArrayList<>();
+        ArrayList<ObjectId> tagsList = new ArrayList<>();
 
-        task.tags.forEach(tag -> labelsList.add(tag.id));
+        task.tags.forEach(tag -> tagsList.add(tag.id));
 
         return new Document()
                 .append("_id", task.id)
@@ -66,9 +71,8 @@ public class TaskController extends BaseController<Task> {
                 .append("description", task.description)
                 .append("date", task.dueDate)
                 .append("checked", task.checked)
-                .append("attachment", task.attachment)
                 .append("project", task.project.id)
                 .append("section", task.section != null ? task.section.id : null)
-                .append("labels", labelsList);
+                .append("tags", tagsList);
     }
 }

@@ -11,6 +11,9 @@ import org.kordamp.bootstrapfx.scene.layout.Panel;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
@@ -57,9 +60,8 @@ public class DashboardPage extends Page {
             if(task.dueDate==null)
                 return;
             Label D = new Label();
-            Date today = new Date();
-            long x = task.dueDate.getTime()-today.getTime();
-            long days = TimeUnit.DAYS.convert(x,TimeUnit.MILLISECONDS);
+//            long days = Duration.between(task.dueDate, LocalDate.now()).toDays();
+            long days = ChronoUnit.DAYS.between(task.dueDate, LocalDate.now());
                 if(days<=7)
                 {
                     D.setText(task.title+" "+task.dueDate);

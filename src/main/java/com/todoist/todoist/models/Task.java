@@ -3,15 +3,15 @@ package com.todoist.todoist.models;
 import com.todoist.todoist.structures.BaseModel;
 import org.bson.types.ObjectId;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
 
 public class Task extends BaseModel {
     public String title;
     public String description;
-    public Date dueDate;
+    public LocalDate dueDate;
     public boolean checked;
-    public String attachment;
     public Project project;
     public Section section;
     public ArrayList<Tag> tags;
@@ -24,9 +24,8 @@ public class Task extends BaseModel {
     public Task(
             String title,
             String description,
-            Date dueDate,
+            LocalDate dueDate,
             boolean checked,
-            String attachment,
             Project project,
             Section section,
             ArrayList<Tag> tags
@@ -36,7 +35,6 @@ public class Task extends BaseModel {
         this.description = description;
         this.dueDate = dueDate;
         this.checked = checked;
-        this.attachment = attachment;
         this.project = project;
         this.section = section;
         this.tags = tags;
@@ -46,14 +44,13 @@ public class Task extends BaseModel {
             ObjectId id,
             String title,
             String description,
-            Date dueDate,
+            LocalDate dueDate,
             boolean checked,
-            String attachment,
             Project project,
             Section section,
             ArrayList<Tag> tags
     ) {
-        this(title, description, dueDate, checked, attachment, project, section, tags);
+        this(title, description, dueDate, checked, project, section, tags);
         this.id = id;
     }
 }
