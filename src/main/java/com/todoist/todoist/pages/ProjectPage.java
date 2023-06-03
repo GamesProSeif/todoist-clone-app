@@ -12,12 +12,13 @@ import javafx.geometry.Insets;
 import javafx.scene.Cursor;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import org.bson.types.ObjectId;
 
 import java.util.ArrayList;
@@ -87,47 +88,16 @@ public class ProjectPage extends Page {
         pane.setTop(headerPane);
 
         HBox hbox = new HBox();
+        ScrollPane sp = new ScrollPane();
+        sp.setContent(hbox);
+        sp.setBackground(Background.fill(Color.rgb(255, 255, 255)));
+        sp.getStyleClass().setAll("edge-to-edge");
         hbox.setPadding(new Insets(10, 0, 0, 0));
-        pane.setCenter(hbox);
+        pane.setCenter(sp);
         hbox.setSpacing(10);
         hbox.setFillHeight(false);
 
-        sections.forEach((sectionId, section) -> {
-            VBox vbox = new VBox();
-            vbox.setStyle("-fx-background-color: rgba(0,0,0,0.1)");
-            vbox.getStyleClass().setAll("alert");
-            vbox.setPadding(new Insets(10));
-            vbox.setSpacing(10);
-            vbox.setMinWidth(200);
-            hbox.getChildren().add(vbox);
-            Label sectionTitleLabel = new Label(section.title);
-            sectionTitleLabel.getStyleClass().setAll("b");
-            vbox.getChildren().add(sectionTitleLabel);
-            tasks.forEach((taskId, task) -> {
-                if (!task.section.id.equals(sectionId))
-                    return;
-                renderTask(vbox, task, -1);
-            });
-            TextField newTaskTextField = new TextField();
-            newTaskTextField.setPromptText("Add Task...");
-            newTaskTextField.setOnKeyPressed(e -> {
-                if (e.getCode().equals(KeyCode.ENTER)) {
-                    String taskTitle = newTaskTextField.getText();
-                    if (taskTitle == null || taskTitle.equals(""))
-                        return;
-                    Task task = new Task(
-                            taskTitle, null, null,
-                            false, null, this.project,
-                            section, new ArrayList<>()
-                    );
-                    this.app.taskController.insert(task);
-                    newTaskTextField.setText("");
-                    renderTask(vbox, task, vbox.getChildren().size() - 1);
-                    this.app.loadPages();
-                }
-            });
-            vbox.getChildren().add(newTaskTextField);
-        });
+        sections.forEach((sectionId, section) -> renderSection(hbox, section));
 
         Button addSectionButton = new Button("+ New Section");
         addSectionButton.setPrefSize(200, 30);
@@ -136,6 +106,60 @@ public class ProjectPage extends Page {
         hbox.getChildren().add(addSectionButton);
 
         return pane;
+    }
+
+    private void renderSection(HBox hbox, Section section) {
+        VBox vbox = new VBox();
+        vbox.setStyle("-fx-background-color: rgba(0,0,0,0.1)");
+        vbox.getStyleClass().setAll("alert");
+        vbox.setPadding(new Insets(10));
+        vbox.setSpacing(10);
+        vbox.setMinWidth(200);
+        hbox.getChildren().add(vbox);
+        Label sectionTitleLabel = new Label(section.title);
+        ImageView iv = new ImageView(new Image("/trash-fill.red.png"));
+        iv.setFitHeight(15);
+        iv.setFitWidth(15);
+        iv.setOnMouseEntered(me -> app.panel.setCursor(Cursor.HAND));
+        iv.setOnMouseExited(me -> app.panel.setCursor(Cursor.DEFAULT));
+        iv.setOnMouseClicked(e -> {
+            tasks.forEach((taskId, task) -> {
+                if (task.section.id.equals(section.id))
+                    this.app.taskController.delete(task);
+            });
+            this.app.sectionController.delete(section);
+            sections.remove(section.id);
+            hbox.getChildren().remove(vbox);
+        });
+        BorderPane sectionHeaderPane = new BorderPane();
+        sectionHeaderPane.setLeft(sectionTitleLabel);
+        sectionHeaderPane.setRight(iv);
+        sectionTitleLabel.getStyleClass().setAll("b");
+        vbox.getChildren().add(sectionHeaderPane);
+        tasks.forEach((taskId, task) -> {
+            if (!task.section.id.equals(section.id))
+                return;
+            renderTask(vbox, task, -1);
+        });
+        TextField newTaskTextField = new TextField();
+        newTaskTextField.setPromptText("Add Task...");
+        newTaskTextField.setOnKeyPressed(e -> {
+            if (e.getCode().equals(KeyCode.ENTER)) {
+                String taskTitle = newTaskTextField.getText();
+                if (taskTitle == null || taskTitle.equals(""))
+                    return;
+                Task task = new Task(
+                        taskTitle, null, null,
+                        false, null, this.project,
+                        section, new ArrayList<>()
+                );
+                this.app.taskController.insert(task);
+                newTaskTextField.setText("");
+                renderTask(vbox, task, vbox.getChildren().size() - 1);
+                this.app.loadPages();
+            }
+        });
+        vbox.getChildren().add(newTaskTextField);
     }
 
     private void renderTask(VBox vbox, Task task, int index) {
