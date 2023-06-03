@@ -4,19 +4,10 @@ import com.todoist.todoist.structures.Page;
 import com.todoist.todoist.structures.TodoistApp;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
-import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 import org.kordamp.bootstrapfx.scene.layout.Panel;
-
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
-import java.time.Duration;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
-import java.util.Date;
-import java.util.concurrent.TimeUnit;
-
 
 public class DashboardPage extends Page {
     public DashboardPage(TodoistApp app) {
@@ -25,10 +16,6 @@ public class DashboardPage extends Page {
     @Override
     public Pane getContent() {
         BorderPane pane = new BorderPane();
-        Label label = new Label("    Dashboard Page    ");
-        label.setStyle("-fx-text-align: center");
-        label.getStyleClass().addAll("h3","b","alert-success","panel-success","btn-lg");
-
         VBox vbox1 = new VBox();
         HBox hbox1 = new HBox();
 
@@ -40,7 +27,7 @@ public class DashboardPage extends Page {
 
         Panel panel = new Panel("Dashboard Page");
         panel.setStyle("-fx-text-align: center");
-        panel.getStyleClass().addAll("panel-success","b","h3");
+        panel.getStyleClass().addAll("panel-success");
 
         hbox1.getChildren().addAll(l1);
         HBox hbox2 = new HBox();
@@ -49,7 +36,6 @@ public class DashboardPage extends Page {
         hbox3.setSpacing(10);
         hbox4.setSpacing(10);
         hbox2.getChildren().addAll(l2);
-        label.setAlignment(Pos.TOP_CENTER);
         vbox1.getChildren().addAll(hbox1,hbox2);
         vbox1.setSpacing(20);
         vbox1.setAlignment(Pos.CENTER);
@@ -57,21 +43,19 @@ public class DashboardPage extends Page {
         var tasks = this.app.taskController.list();
 
         tasks.forEach((objectId, task) -> {
+            if (task.checked)
+                return;
             if(task.dueDate==null)
                 return;
-            Label D = new Label();
 //            long days = Duration.between(task.dueDate, LocalDate.now()).toDays();
             long days = ChronoUnit.DAYS.between(task.dueDate, LocalDate.now());
-                if(days<=7)
-                {
-                    D.setText(task.title+" "+task.dueDate);
-                    D.setStyle("-fx-text-align: center");
-                    D.getStyleClass().addAll("b","btn-lg","btn","bg-success","h4");
-                    hbox4.getChildren().add(D);
-                }
-            D.setOnMouseClicked(e->{
-                this.app.switchPage("task:" + task.id);
-            });
+            if(days<=7)
+            {
+                VBox taskVbox = ProjectPage.renderTask(this.app, task, this.app.tagController.list());
+                taskVbox.setAlignment(Pos.BOTTOM_LEFT);
+                taskVbox.setMinWidth(125);
+                hbox4.getChildren().add(taskVbox);
+            }
         });
 
         var projects = this.app.projectController.list();

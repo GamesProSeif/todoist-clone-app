@@ -14,7 +14,7 @@ public class Task extends BaseModel {
     public boolean checked;
     public Project project;
     public Section section;
-    public ArrayList<Tag> tags;
+    public ArrayList<ObjectId> tags;
 
     public Task() {
         this.id = new ObjectId();
@@ -28,7 +28,7 @@ public class Task extends BaseModel {
             boolean checked,
             Project project,
             Section section,
-            ArrayList<Tag> tags
+            ArrayList<ObjectId> tags
     ) {
         this();
         this.title = title;
@@ -48,7 +48,7 @@ public class Task extends BaseModel {
             boolean checked,
             Project project,
             Section section,
-            ArrayList<Tag> tags
+            ArrayList<ObjectId> tags
     ) {
         this(title, description, dueDate, checked, project, section, tags);
         this.id = id;

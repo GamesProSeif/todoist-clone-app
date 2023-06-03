@@ -97,7 +97,7 @@ public abstract class BaseController<T extends BaseModel> {
                 throw new Exception("No " + name + " with id " + id);
             if (cache != null)
                 cache.put(id, cache.get(id));
-            System.out.println("Updated project: " + id);
+            System.out.println("Updated " + name + ": " + id);
         } catch (Exception e) {
             System.err.println("Update " + name + " Error: " + e);
         }

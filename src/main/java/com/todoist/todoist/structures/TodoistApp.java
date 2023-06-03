@@ -14,6 +14,7 @@ import com.todoist.todoist.pages.TaskPage;
 import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 
 import javafx.scene.Scene;
@@ -81,12 +82,15 @@ public class TodoistApp extends Application {
         Page page = pages.get(pageName);
         if (page instanceof ProjectPage)
             pageName = ((ProjectPage) page).project.title;
-        Button button = new Button("   "+pageName);
+        Button button = new Button(pageName);
         button.setStyle("-fx-text-align: center");
-        if(pageName!="+ New Project")
+        if(!pageName.equals("+ New Project")) {
+            button.setPadding(new Insets(0, 0, 0, 15));
             button.getStyleClass().setAll("h5");
-        else {
-            button.getStyleClass().setAll("btn", "lbl-primary");
+        } else {
+            button.getStyleClass().setAll("h5", "lbl-primary");
+            button.setAlignment(Pos.CENTER);
+            button.setMinHeight(30);
             button.setStyle("-fx-text-fill: white");
         }
         button.setMaxWidth(vbox.getMinWidth());
@@ -98,6 +102,7 @@ public class TodoistApp extends Application {
 
     private Pane getSidebar() {
         VBox vbox = new VBox();
+        vbox.setPadding(new Insets(10, 0, 0, 0));
         vbox.setMinWidth(200);
         vbox.setAlignment(Pos.TOP_CENTER);
         pages.forEach((pageName, page) -> {
@@ -109,9 +114,10 @@ public class TodoistApp extends Application {
                     e -> switchPage(pageName)
             );
         });
-        Label proj = new Label("\nProjects");
+        Label proj = new Label("Projects");
+        proj.setPadding(new Insets(10, 0, 0, 0));
         proj.setStyle("-fx-text-align: center");
-        proj.getStyleClass().setAll("b");
+        proj.getStyleClass().setAll("b", "h4");
         vbox.getChildren().add(proj);
         pages.forEach((pageName, page) -> {
             if (!(page instanceof ProjectPage))

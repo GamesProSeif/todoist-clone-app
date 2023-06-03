@@ -1,5 +1,6 @@
 package com.todoist.todoist.pages;
 
+import com.mongodb.client.model.Updates;
 import com.todoist.todoist.modals.AddSectionModal;
 import com.todoist.todoist.modals.EditTagsModal;
 import com.todoist.todoist.models.Project;
@@ -19,8 +20,15 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Font;
+import javafx.scene.text.Text;
 import org.bson.types.ObjectId;
 
+import java.text.DateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -60,10 +68,37 @@ public class ProjectPage extends Page {
         fetchData();
 
         BorderPane pane = new BorderPane();
+        BorderPane headerPane = new BorderPane();
+        headerPane.setMinHeight(43);
         Label label = new Label(project.title);
+        label.setOnMouseEntered(me -> app.panel.setCursor(Cursor.TEXT));
+        label.setOnMouseExited(me -> app.panel.setCursor(Cursor.DEFAULT));
         label.getStyleClass().addAll(
                 "panel-heading","alert","text-heading","h4","b","btn-lg"
         );
+        label.setOnMouseClicked(e -> {
+            TextField projectTitleTextField = new TextField();
+            projectTitleTextField.setFont(label.getFont());
+            projectTitleTextField.setPromptText("Project name");
+            projectTitleTextField.setText(project.title);
+            headerPane.setLeft(projectTitleTextField);
+            projectTitleTextField.requestFocus();
+            projectTitleTextField.setOnKeyPressed(ke -> {
+                String projectTitle = projectTitleTextField.getText();
+                if (projectTitle == null || projectTitle.equals(""))
+                    return;
+                if (ke.getCode().equals(KeyCode.ENTER)) {
+                    project.title = projectTitle;
+                    var updates = Updates.set("title", project.title);
+                    this.app.projectController.update(project, updates);
+                    this.app.reload();
+                }
+            });
+            projectTitleTextField.focusedProperty().addListener((obs, oldVal, newVal) -> {
+                if (!newVal)
+                    headerPane.setLeft(label);
+            });
+        });
 
         Button deleteProjectButton = new Button("Delete Project");
         deleteProjectButton.getStyleClass().setAll("btn", "btn-danger");
@@ -80,7 +115,6 @@ public class ProjectPage extends Page {
         editTagsButton.getStyleClass().setAll("btn", "btn-warning");
         editTagsButton.setOnAction(e ->
             (new EditTagsModal(this.app, project, tags)).getContent().show());
-        BorderPane headerPane = new BorderPane();
         headerPane.setLeft(label);
         HBox buttonHBox = new HBox(editTagsButton, deleteProjectButton);
         buttonHBox.setSpacing(10);
@@ -116,22 +150,48 @@ public class ProjectPage extends Page {
         vbox.setSpacing(10);
         vbox.setMinWidth(200);
         hbox.getChildren().add(vbox);
+        BorderPane sectionHeaderPane = new BorderPane();
+        sectionHeaderPane.setMinHeight(23);
         Label sectionTitleLabel = new Label(section.title);
+        sectionTitleLabel.setOnMouseEntered(me -> app.panel.setCursor(Cursor.TEXT));
+        sectionTitleLabel.setOnMouseExited(me -> app.panel.setCursor(Cursor.DEFAULT));
+        sectionTitleLabel.setOnMouseClicked(e -> {
+            TextField sectionTitleTextField = new TextField();
+            sectionTitleTextField.setFont(sectionTitleLabel.getFont());
+            sectionTitleTextField.setPromptText("Section name");
+            sectionTitleTextField.setText(section.title);
+            sectionHeaderPane.setLeft(sectionTitleTextField);
+            sectionTitleTextField.requestFocus();
+            sectionTitleTextField.setOnKeyPressed(ke -> {
+                String sectionTitle = sectionTitleTextField.getText();
+                if (sectionTitle == null || sectionTitle.equals(""))
+                    return;
+                if (ke.getCode().equals(KeyCode.ENTER)) {
+                    section.title = sectionTitle;
+                    var updates = Updates.set("title", section.title);
+                    this.app.sectionController.update(section, updates);
+                    this.app.reload();
+                }
+            });
+            sectionTitleTextField.focusedProperty().addListener((obs, oldVal, newVal) -> {
+                if (!newVal)
+                    sectionHeaderPane.setLeft(sectionTitleLabel);
+            });
+        });
         ImageView iv = new ImageView(new Image("/trash-fill.red.png"));
         iv.setFitHeight(15);
         iv.setFitWidth(15);
         iv.setOnMouseEntered(me -> app.panel.setCursor(Cursor.HAND));
         iv.setOnMouseExited(me -> app.panel.setCursor(Cursor.DEFAULT));
         iv.setOnMouseClicked(e -> {
+            hbox.getChildren().remove(vbox);
             tasks.forEach((taskId, task) -> {
                 if (task.section.id.equals(section.id))
                     this.app.taskController.delete(task);
             });
             this.app.sectionController.delete(section);
             sections.remove(section.id);
-            hbox.getChildren().remove(vbox);
         });
-        BorderPane sectionHeaderPane = new BorderPane();
         sectionHeaderPane.setLeft(sectionTitleLabel);
         sectionHeaderPane.setRight(iv);
         sectionTitleLabel.getStyleClass().setAll("b");
@@ -163,8 +223,19 @@ public class ProjectPage extends Page {
     }
 
     private void renderTask(VBox vbox, Task task, int index) {
+        var taskVbox = renderTask(this.app, task, tags);
+        if (index == -1)
+            vbox.getChildren().add(taskVbox);
+        else
+            vbox.getChildren().add(index, taskVbox);
+    }
+
+    public static VBox renderTask(TodoistApp app, Task task, HashMap<ObjectId, Tag> tags) {
         VBox taskVbox = new VBox();
-        taskVbox.setOnMouseClicked(me -> app.switchPage("task:" + task.id));
+        taskVbox.setOnMouseClicked(me -> {
+            if ((me.getTarget() instanceof VBox))
+                app.switchPage("task:" + task.id);
+        });
         taskVbox.setOnMouseEntered(me -> app.panel.setCursor(Cursor.HAND));
         taskVbox.setOnMouseExited(me -> app.panel.setCursor(Cursor.DEFAULT));
         taskVbox.setStyle("-fx-background-color: rgba(0,0,0,0.15); -fx-background-radius: 5px");
@@ -174,22 +245,61 @@ public class ProjectPage extends Page {
         HBox tagsHBox;
         if (task.tags.size() > 0) {
             tagsHBox = new HBox();
-            task.tags.forEach(tag -> {
+            task.tags.forEach(tagId -> {
+                var tag = tags.get(tagId);
                 var tagLabel = new Label(tag.title);
-                tagLabel.setStyle("-fx-background-color: #" + tag.color.substring(2));
+                tagLabel.setStyle("-fx-background-radius: 5px; -fx-background-color: #" + tag.color);
                 tagLabel.getStyleClass().setAll("badge");
                 tagsHBox.getChildren().add(tagLabel);
+                tagLabel.setOnMouseClicked(me -> app.switchPage("task:" + task.id));
             });
         } else {
             tagsHBox = null;
         }
-        if (tagsHBox != null)
+        if (tagsHBox != null) {
+            tagsHBox.setSpacing(5);
             taskVbox.getChildren().add(tagsHBox);
+        }
         Label taskLabel = new Label(task.title);
+        taskLabel.setOnMouseClicked(e -> app.switchPage("task:" + task.id));
+        taskLabel.getStyleClass().addAll("h5");
         taskVbox.getChildren().add(taskLabel);
-        if (index == -1)
-            vbox.getChildren().add(taskVbox);
-        else
-            vbox.getChildren().add(index, taskVbox);
+        if (task.dueDate != null) {
+            var formatter = DateTimeFormatter.ofPattern("MMM d");
+            Label taskDueDateLabel = new Label(formatter.format(task.dueDate));
+            taskDueDateLabel.setStyle("-fx-background-radius: 5px;");
+            double opacity;
+            if (task.checked) {
+                opacity = 0.6;
+                taskDueDateLabel.getStyleClass().setAll("lbl-success");
+            }
+            else {
+                opacity = 1;
+                var diff = task.dueDate.compareTo(LocalDate.now());
+                if (diff < 0)
+                    taskDueDateLabel.getStyleClass().setAll("lbl-danger");
+                else if (diff < 2)
+                    taskDueDateLabel.getStyleClass().setAll("lbl-warning");
+                else
+                    taskDueDateLabel.getStyleClass().setAll("lbl-default");
+            }
+            taskDueDateLabel.setFont(new Font(12));
+            taskDueDateLabel.setPadding(new Insets(3, 5, 3, 5));
+            taskVbox.getChildren().add(taskDueDateLabel);
+            taskDueDateLabel.setOpacity(opacity);
+            taskDueDateLabel.setOnMouseEntered(e -> {
+                taskDueDateLabel.setOpacity(0.8);
+            });
+            taskDueDateLabel.setOnMouseExited(e -> {
+                taskDueDateLabel.setOpacity(opacity);
+            });
+            taskDueDateLabel.setOnMouseClicked(e -> {
+                task.checked = !task.checked;
+                var updates = Updates.set("checked", task.checked);
+                app.taskController.update(task, updates);
+                app.reload();
+            });
+        }
+        return taskVbox;
     }
 }

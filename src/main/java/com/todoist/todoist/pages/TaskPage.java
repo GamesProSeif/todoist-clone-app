@@ -9,6 +9,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.control.*;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
@@ -28,10 +29,38 @@ public class TaskPage extends Page {
     @Override
     public Pane getContent() {
         BorderPane pane = new BorderPane();
+        BorderPane taskHeaderPane = new BorderPane();
+        taskHeaderPane.setMinHeight(43);
         Label label = new Label(task.title);
+        label.setOnMouseEntered(me -> app.panel.setCursor(Cursor.TEXT));
+        label.setOnMouseExited(me -> app.panel.setCursor(Cursor.DEFAULT));
         label.getStyleClass().addAll(
                 "panel-heading","alert","text-heading","h4","b","btn-lg"
         );
+        label.setOnMouseClicked(e -> {
+            TextField taskTitleTextField = new TextField();
+            taskTitleTextField.setFont(label.getFont());
+            taskTitleTextField.setPromptText("Task name");
+            taskTitleTextField.setText(task.title);
+            taskHeaderPane.setLeft(taskTitleTextField);
+            taskTitleTextField.requestFocus();
+            taskTitleTextField.setOnKeyPressed(ke -> {
+                String taskTitle = taskTitleTextField.getText();
+                if (taskTitle == null || taskTitle.equals(""))
+                    return;
+                if (ke.getCode().equals(KeyCode.ENTER)) {
+                    task.title = taskTitle;
+                    var updates = Updates.set("title", task.title);
+                    this.app.taskController.update(task, updates);
+                    this.app.reload();
+                }
+            });
+            taskTitleTextField.focusedProperty().addListener((obs, oldVal, newVal) -> {
+                if (!newVal)
+                    taskHeaderPane.setLeft(label);
+            });
+        });
+
         Button deleteTaskButton = new Button("Delete Task");
         deleteTaskButton.setOnAction(e -> {
             this.app.taskController.delete(task);
@@ -39,7 +68,6 @@ public class TaskPage extends Page {
             this.app.reload();
         });
         deleteTaskButton.getStyleClass().setAll("btn", "btn-danger");
-        BorderPane taskHeaderPane = new BorderPane();
         taskHeaderPane.setLeft(label);
         taskHeaderPane.setRight(deleteTaskButton);
         pane.setTop(taskHeaderPane);
@@ -78,19 +106,17 @@ public class TaskPage extends Page {
             if (!tag.project.id.equals(task.project.id))
                 return;
             CheckBox tagChecked = new CheckBox();
-            tagChecked.setSelected(task.tags.contains(tag));
+            tagChecked.setSelected(task.tags.contains(tag.id));
             tagChecked.setOnAction(e -> {
                 if (tagChecked.isSelected())
-                    task.tags.add(tag);
+                    task.tags.add(tag.id);
                 else
-                    task.tags.remove(tag);
-                ArrayList<ObjectId> updatedTags = new ArrayList<>();
-                task.tags.forEach(mappedTag -> updatedTags.add(mappedTag.id));
-                var updates = Updates.set("tags", updatedTags);
+                    task.tags.remove(tag.id);
+                var updates = Updates.set("tags", task.tags);
                 this.app.taskController.update(task, updates);
             });
             Label tagTitleLabel = new Label(tag.title);
-            tagTitleLabel.setStyle("-fx-background-color: #" + tag.color.substring(2));
+            tagTitleLabel.setStyle("-fx-background-color: #" + tag.color);
             tagTitleLabel.getStyleClass().setAll("badge");
 
             HBox tagHbox = new HBox(tagChecked, tagTitleLabel);
@@ -105,6 +131,8 @@ public class TaskPage extends Page {
         descriptionTextArea.setMaxWidth(750);
         Button saveDescriptionButton = new Button("Save");
         saveDescriptionButton.setOnAction(e -> {
+            if (task.description.equals(descriptionTextArea.getText()))
+                return;
             var updates = Updates.set("description", descriptionTextArea.getText());
             task.description = descriptionTextArea.getText();
             this.app.taskController.update(task, updates);

@@ -38,12 +38,9 @@ public class TaskController extends BaseController<Task> {
         Section section = null;
         if (doc.get("section") != null)
             section = sectionController.findById(doc.getObjectId("section"));
-        ArrayList<Tag> tags = new ArrayList<Tag>();
         List<ObjectId> tagsId = doc.getList("tags", ObjectId.class);
 
-         tagsId.forEach(id -> {
-            tags.add(tagController.findById(id));
-        });
+        ArrayList<ObjectId> tags = new ArrayList<>(tagsId);
 
         return new Task(
                 doc.getObjectId("_id"),
@@ -61,10 +58,6 @@ public class TaskController extends BaseController<Task> {
 
     @Override
     protected Document modelToDocument(Task task) {
-        ArrayList<ObjectId> tagsList = new ArrayList<>();
-
-        task.tags.forEach(tag -> tagsList.add(tag.id));
-
         return new Document()
                 .append("_id", task.id)
                 .append("title", task.title)
@@ -73,6 +66,6 @@ public class TaskController extends BaseController<Task> {
                 .append("checked", task.checked)
                 .append("project", task.project.id)
                 .append("section", task.section != null ? task.section.id : null)
-                .append("tags", tagsList);
+                .append("tags", task.tags);
     }
 }
