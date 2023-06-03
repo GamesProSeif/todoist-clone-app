@@ -83,7 +83,10 @@ public class TodoistApp extends Application {
             pageName = ((ProjectPage) page).project.title;
         Button button = new Button(pageName);
         button.setStyle("-fx-text-align: center");
-        button.getStyleClass().setAll("btn");
+        if(pageName!="+ New Project")
+            button.getStyleClass().setAll("btn","panel-primary");
+        else
+            button.getStyleClass().setAll("btn","lbl-primary");
         button.setMaxWidth(vbox.getMinWidth());
 
         button.setOnAction(e);
@@ -104,7 +107,8 @@ public class TodoistApp extends Application {
                     e -> switchPage(pageName)
             );
         });
-        Label proj = new Label("Projects");
+        Label proj = new Label("\nProjects");
+        proj.setStyle("-fx-text-align: center");
         vbox.getChildren().add(proj);
         pages.forEach((pageName, page) -> {
             if (!(page instanceof ProjectPage))
@@ -122,7 +126,8 @@ public class TodoistApp extends Application {
                 e -> (new AddProjectModal(this)).getContent().show()
         );
         //vbox.setStyle("-fx-background-color: rgba(0,155,255,1)");
-        vbox.getStyleClass().addAll("btn-lg","alert-info");
+        vbox.getStyleClass().addAll(/*"btn-lg",*/"panel-primary","bg-info");
+        vbox.setSpacing(10);
         return vbox;
     }
 
