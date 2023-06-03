@@ -81,12 +81,14 @@ public class TodoistApp extends Application {
         Page page = pages.get(pageName);
         if (page instanceof ProjectPage)
             pageName = ((ProjectPage) page).project.title;
-        Button button = new Button(pageName);
+        Button button = new Button("   "+pageName);
         button.setStyle("-fx-text-align: center");
         if(pageName!="+ New Project")
-            button.getStyleClass().setAll("btn","panel-primary");
-        else
-            button.getStyleClass().setAll("btn","lbl-primary");
+            button.getStyleClass().setAll("h5");
+        else {
+            button.getStyleClass().setAll("btn", "lbl-primary");
+            button.setStyle("-fx-text-fill: white");
+        }
         button.setMaxWidth(vbox.getMinWidth());
 
         button.setOnAction(e);
@@ -109,6 +111,7 @@ public class TodoistApp extends Application {
         });
         Label proj = new Label("\nProjects");
         proj.setStyle("-fx-text-align: center");
+        proj.getStyleClass().setAll("b");
         vbox.getChildren().add(proj);
         pages.forEach((pageName, page) -> {
             if (!(page instanceof ProjectPage))
@@ -156,6 +159,8 @@ public class TodoistApp extends Application {
         scene.getStylesheets().add(BootstrapFX.bootstrapFXStylesheet());       //(3)
 
         this.stage.setTitle("Task Flow");
+        this.stage.setMinWidth(900);
+        this.stage.setMinHeight(400);
         this.stage.setScene(scene);
         this.stage.sizeToScene();
         this.stage.show();

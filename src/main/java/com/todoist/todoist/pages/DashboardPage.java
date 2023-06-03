@@ -11,6 +11,8 @@ import org.kordamp.bootstrapfx.scene.layout.Panel;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 
 public class DashboardPage extends Page {
@@ -49,9 +51,28 @@ public class DashboardPage extends Page {
         vbox1.setSpacing(20);
         vbox1.setAlignment(Pos.CENTER);
 
-        var projects = this.app.projectController.list();
+        var tasks = this.app.taskController.list();
 
-        //projects.forEach(());
+        tasks.forEach((objectId, task) -> {
+            if(task.dueDate==null)
+                return;
+            Label D = new Label();
+            Date today = new Date();
+            long x = task.dueDate.getTime()-today.getTime();
+            long days = TimeUnit.DAYS.convert(x,TimeUnit.MILLISECONDS);
+                if(days<=7)
+                {
+                    D.setText(task.title+" "+task.dueDate);
+                    D.setStyle("-fx-text-align: center");
+                    D.getStyleClass().addAll("b","btn-lg","btn","bg-success","h4");
+                    hbox4.getChildren().add(D);
+                }
+            D.setOnMouseClicked(e->{
+                this.app.switchPage("task:" + task.id);
+            });
+        });
+
+        var projects = this.app.projectController.list();
 
         projects.forEach((id, project) -> {
             Label L = new Label();
@@ -59,6 +80,10 @@ public class DashboardPage extends Page {
             L.setStyle("-fx-text-align: center");
             L.getStyleClass().addAll("b","btn-lg","btn","bg-success","h4");
             hbox3.getChildren().add(L);
+
+            L.setOnMouseClicked(e->{
+                this.app.switchPage("project:" + project.id);
+            });
             //if()
         });
 
