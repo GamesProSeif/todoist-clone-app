@@ -15,6 +15,7 @@ import static com.mongodb.client.model.Filters.eq;
 public abstract class BaseController<T extends BaseModel> {
     private final MongoCollection<Document> collection;
     private final String name;
+    private HashMap<ObjectId, T> cache;
 
     public BaseController(MongoDatabase db, String name) {
         this.name = name.substring(0, name.length() - 1);
@@ -25,6 +26,8 @@ public abstract class BaseController<T extends BaseModel> {
     protected abstract Document modelToDocument(T model);
 
     public T findById(ObjectId id) {
+        if (cache != null && cache.get(id) != null)
+            return cache.get(id);
         Document doc = collection.find(eq("_id", id)).first();
         if (doc == null)
             return null;
@@ -32,6 +35,9 @@ public abstract class BaseController<T extends BaseModel> {
     }
     public HashMap<ObjectId, T> list() {
         HashMap<ObjectId, T> map = new HashMap<>();
+
+        if (cache != null)
+            return cache;
 
         try (MongoCursor<Document> cursor = collection.find().iterator()) {
             try {
@@ -45,6 +51,7 @@ public abstract class BaseController<T extends BaseModel> {
             }
         }
 
+        cache = map;
         return map;
     }
     public void insert(T item) {
@@ -53,6 +60,8 @@ public abstract class BaseController<T extends BaseModel> {
             return;
         }
         collection.insertOne(modelToDocument(item));
+        if (cache != null)
+            cache.put(item.id, item);
         System.out.println("Inserted " + name + ": " + item.id);
     }
     public void delete(T item) {
@@ -67,6 +76,8 @@ public abstract class BaseController<T extends BaseModel> {
             DeleteResult result = collection.deleteOne(eq("_id", id));
             if (result.getDeletedCount() == 0)
                 throw new Exception("No " + name +  " with id " + id);
+            if (cache != null)
+                cache.remove(id);
             System.out.println("Deleted " + name + ": " + id);
         } catch (Exception e) {
             System.err.println("Delete " + name + " Error: " + e);
@@ -84,6 +95,8 @@ public abstract class BaseController<T extends BaseModel> {
             UpdateResult result = collection.updateOne(eq("_id", id), data);
             if (result.getModifiedCount() == 0)
                 throw new Exception("No " + name + " with id " + id);
+            if (cache != null)
+                cache.put(id, cache.get(id));
             System.out.println("Updated project: " + id);
         } catch (Exception e) {
             System.err.println("Update " + name + " Error: " + e);
