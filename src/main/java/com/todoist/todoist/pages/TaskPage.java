@@ -64,8 +64,9 @@ public class TaskPage extends Page {
         Button deleteTaskButton = new Button("Delete Task");
         deleteTaskButton.setOnAction(e -> {
             this.app.taskController.delete(task);
-            this.app.switchPage("project:" + task.project.id);
+            this.app.switchPage("Dashboard");
             this.app.reload();
+            this.app.switchPage("project:" + task.project.id);
         });
         deleteTaskButton.getStyleClass().setAll("btn", "btn-danger");
         taskHeaderPane.setLeft(label);

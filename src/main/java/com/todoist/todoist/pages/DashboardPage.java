@@ -48,7 +48,7 @@ public class DashboardPage extends Page {
             if(task.dueDate==null)
                 return;
 //            long days = Duration.between(task.dueDate, LocalDate.now()).toDays();
-            long days = ChronoUnit.DAYS.between(task.dueDate, LocalDate.now());
+            long days = ChronoUnit.DAYS.between(LocalDate.now(),task.dueDate);
             if(days<=7)
             {
                 VBox taskVbox = ProjectPage.renderTask(this.app, task, this.app.tagController.list());

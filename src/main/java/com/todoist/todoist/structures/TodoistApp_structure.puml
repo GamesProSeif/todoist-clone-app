@@ -1,0 +1,446 @@
+@startuml
+
+/' diagram meta data start
+config=StructureConfiguration;
+{
+  "projectClassification": {
+    "searchMode": "OpenProject", // OpenProject, AllProjects
+    "includedProjects": "",
+    "pathEndKeywords": "*.impl",
+    "isClientPath": "",
+    "isClientName": "",
+    "isTestPath": "",
+    "isTestName": "",
+    "isMappingPath": "",
+    "isMappingName": "",
+    "isDataAccessPath": "",
+    "isDataAccessName": "",
+    "isDataStructurePath": "",
+    "isDataStructureName": "",
+    "isInterfaceStructuresPath": "",
+    "isInterfaceStructuresName": "",
+    "isEntryPointPath": "",
+    "isEntryPointName": "",
+    "treatFinalFieldsAsMandatory": false
+  },
+  "graphRestriction": {
+    "classPackageExcludeFilter": "",
+    "classPackageIncludeFilter": "",
+    "classNameExcludeFilter": "",
+    "classNameIncludeFilter": "",
+    "methodNameExcludeFilter": "",
+    "methodNameIncludeFilter": "",
+    "removeByInheritance": "", // inheritance/annotation based filtering is done in a second step
+    "removeByAnnotation": "",
+    "removeByClassPackage": "", // cleanup the graph after inheritance/annotation based filtering is done
+    "removeByClassName": "",
+    "cutMappings": false,
+    "cutEnum": true,
+    "cutTests": true,
+    "cutClient": true,
+    "cutDataAccess": false,
+    "cutInterfaceStructures": false,
+    "cutDataStructures": false,
+    "cutGetterAndSetter": true,
+    "cutConstructors": true
+  },
+  "graphTraversal": {
+    "forwardDepth": 6,
+    "backwardDepth": 6,
+    "classPackageExcludeFilter": "",
+    "classPackageIncludeFilter": "",
+    "classNameExcludeFilter": "",
+    "classNameIncludeFilter": "",
+    "methodNameExcludeFilter": "",
+    "methodNameIncludeFilter": "",
+    "hideMappings": false,
+    "hideDataStructures": false,
+    "hidePrivateMethods": true,
+    "hideInterfaceCalls": true, // indirection: implementation -> interface (is hidden) -> implementation
+    "onlyShowApplicationEntryPoints": false, // root node is included
+    "useMethodCallsForStructureDiagram": "ForwardOnly" // ForwardOnly, BothDirections, No
+  },
+  "details": {
+    "aggregation": "GroupByClass", // ByClass, GroupByClass, None
+    "showClassGenericTypes": true,
+    "showMethods": true,
+    "showMethodParameterNames": true,
+    "showMethodParameterTypes": true,
+    "showMethodReturnType": true,
+    "showPackageLevels": 2,
+    "showDetailedClassStructure": true
+  },
+  "rootClass": "com.todoist.todoist.structures.TodoistApp",
+  "extensionCallbackMethod": "" // qualified.class.name#methodName - signature: public static String method(String)
+}
+diagram meta data end '/
+
+
+
+digraph g {
+    rankdir="TB"
+    splines=polyline
+    
+
+'nodes 
+subgraph cluster_1150156156 { 
+   	label=todoist
+	labeljust=l
+	fillcolor="#ececec"
+	style=filled
+   
+   subgraph cluster_1954459366 { 
+   	label=todoist
+	labeljust=l
+	fillcolor="#d8d8d8"
+	style=filled
+   
+   AddProjectModal1755973063[
+	label=<<TABLE BORDER="1" CELLBORDER="0" CELLPADDING="4" CELLSPACING="0">
+<TR><TD ALIGN="LEFT" >(C)AddProjectModal</TD></TR>
+<HR/>
+<TR><TD ALIGN="LEFT" >- createNewProject(title: String)</TD></TR>
+</TABLE>>
+	style=filled
+	margin=0
+	shape=plaintext
+	fillcolor="#FFFFFF"
+];
+
+AddSectionModal1755973063[
+	label=<<TABLE BORDER="1" CELLBORDER="0" CELLPADDING="4" CELLSPACING="0">
+<TR><TD ALIGN="LEFT" >(C)AddSectionModal</TD></TR>
+<HR/>
+<TR><TD ALIGN="LEFT" >#   page: ProjectPage [0..1]</TD></TR>
+<TR><TD ALIGN="LEFT" >#   project: Project [0..1]</TD></TR>
+<HR/>
+<TR><TD ALIGN="LEFT" >- createNewSection(sectionTitle: String)</TD></TR>
+</TABLE>>
+	style=filled
+	margin=0
+	shape=plaintext
+	fillcolor="#FFFFFF"
+];
+
+BaseController1252453567[
+	label=<<TABLE BORDER="1" CELLBORDER="0" CELLPADDING="4" CELLSPACING="0">
+<TR><TD ALIGN="LEFT" >(C)BaseController&lt;T extends BaseModel&gt;</TD></TR>
+<HR/>
+<TR><TD ALIGN="LEFT" >-   cache: HashMap&lt;ObjectId, T&gt; [0..*]</TD></TR>
+<TR><TD ALIGN="LEFT" >-   collection: MongoCollection&lt;Document&gt; [0..1]</TD></TR>
+<TR><TD ALIGN="LEFT" >-   name: String [0..1]</TD></TR>
+<HR/>
+<TR><TD ALIGN="LEFT" >+ delete(item: T)</TD></TR>
+<TR><TD ALIGN="LEFT" >+ delete(id: ObjectId)</TD></TR>
+<TR><TD ALIGN="LEFT" ># documentToModel(doc: Document): T</TD></TR>
+<TR><TD ALIGN="LEFT" >+ findById(id: ObjectId): T</TD></TR>
+<TR><TD ALIGN="LEFT" >+ insert(item: T)</TD></TR>
+<TR><TD ALIGN="LEFT" >+ list(): HashMap&lt;ObjectId, T&gt;</TD></TR>
+<TR><TD ALIGN="LEFT" ># modelToDocument(model: T): Document</TD></TR>
+<TR><TD ALIGN="LEFT" >+ update(item: T, data: Bson)</TD></TR>
+<TR><TD ALIGN="LEFT" >+ update(id: ObjectId, data: Bson)</TD></TR>
+</TABLE>>
+	style=filled
+	margin=0
+	shape=plaintext
+	fillcolor="#FFFFFF"
+];
+
+BaseModal1252453567[
+	label=<<TABLE BORDER="1" CELLBORDER="0" CELLPADDING="4" CELLSPACING="0">
+<TR><TD ALIGN="LEFT" >(C)BaseModal</TD></TR>
+<HR/>
+<TR><TD ALIGN="LEFT" >#   app: TodoistApp [0..1]</TD></TR>
+</TABLE>>
+	style=filled
+	margin=0
+	shape=plaintext
+	fillcolor="#FFFFFF"
+];
+
+BaseModel1252453567[
+	label=<<TABLE BORDER="1" CELLBORDER="0" CELLPADDING="4" CELLSPACING="0">
+<TR><TD ALIGN="LEFT" >(C)BaseModel</TD></TR>
+<HR/>
+<TR><TD ALIGN="LEFT" >+   id: ObjectId [0..1]</TD></TR>
+</TABLE>>
+	style=filled
+	margin=0
+	shape=plaintext
+	fillcolor="#FFFFFF"
+];
+
+DashboardPage633735869[
+	label=<<TABLE BORDER="1" CELLBORDER="0" CELLPADDING="4" CELLSPACING="0">
+<TR><TD ALIGN="LEFT" >(C)DashboardPage</TD></TR>
+</TABLE>>
+	style=filled
+	margin=0
+	shape=plaintext
+	fillcolor="#FFFFFF"
+];
+
+EditTagsModal1755973063[
+	label=<<TABLE BORDER="1" CELLBORDER="0" CELLPADDING="4" CELLSPACING="0">
+<TR><TD ALIGN="LEFT" >(C)EditTagsModal</TD></TR>
+<HR/>
+<TR><TD ALIGN="LEFT" >#   panel: Panel [0..1]</TD></TR>
+<TR><TD ALIGN="LEFT" >#   project: Project [0..1]</TD></TR>
+<TR><TD ALIGN="LEFT" >#   tags: HashMap&lt;ObjectId, Tag&gt; [0..*]</TD></TR>
+<HR/>
+<TR><TD ALIGN="LEFT" >+ renderTag(tagsVbox: VBox, tag: Tag, order: int)</TD></TR>
+</TABLE>>
+	style=filled
+	margin=0
+	shape=plaintext
+	fillcolor="#FFFFFF"
+];
+
+Page1252453567[
+	label=<<TABLE BORDER="1" CELLBORDER="0" CELLPADDING="4" CELLSPACING="0">
+<TR><TD ALIGN="LEFT" >(C)Page</TD></TR>
+<HR/>
+<TR><TD ALIGN="LEFT" >#   app: TodoistApp [0..1]</TD></TR>
+</TABLE>>
+	style=filled
+	margin=0
+	shape=plaintext
+	fillcolor="#FFFFFF"
+];
+
+Project1755976907[
+	label=<<TABLE BORDER="1" CELLBORDER="0" CELLPADDING="4" CELLSPACING="0">
+<TR><TD ALIGN="LEFT" >(C)Project</TD></TR>
+<HR/>
+<TR><TD ALIGN="LEFT" >+   title: String [0..1]</TD></TR>
+</TABLE>>
+	style=filled
+	margin=0
+	shape=plaintext
+	fillcolor="#FFFFFF"
+];
+
+ProjectController965720726[
+	label=<<TABLE BORDER="1" CELLBORDER="0" CELLPADDING="4" CELLSPACING="0">
+<TR><TD ALIGN="LEFT" >(C)ProjectController</TD></TR>
+<HR/>
+<TR><TD ALIGN="LEFT" ># documentToModel(doc: Document): Project</TD></TR>
+<TR><TD ALIGN="LEFT" ># modelToDocument(project: Project): Document</TD></TR>
+</TABLE>>
+	style=filled
+	margin=0
+	shape=plaintext
+	fillcolor="#FFFFFF"
+];
+
+ProjectPage633735869[
+	label=<<TABLE BORDER="1" CELLBORDER="0" CELLPADDING="4" CELLSPACING="0">
+<TR><TD ALIGN="LEFT" >(C)ProjectPage</TD></TR>
+<HR/>
+<TR><TD ALIGN="LEFT" >+   project: Project [0..1]</TD></TR>
+<TR><TD ALIGN="LEFT" >#   sections: HashMap&lt;ObjectId, Section&gt; [0..*]</TD></TR>
+<TR><TD ALIGN="LEFT" >#   tags: HashMap&lt;ObjectId, Tag&gt; [0..*]</TD></TR>
+<TR><TD ALIGN="LEFT" >#   tasks: HashMap&lt;ObjectId, Task&gt; [0..*]</TD></TR>
+<HR/>
+<TR><TD ALIGN="LEFT" >- fetchData()</TD></TR>
+<TR><TD ALIGN="LEFT" >- renderSection(hbox: HBox, section: Section)</TD></TR>
+<TR><TD ALIGN="LEFT" >- renderTask(vbox: VBox, task: Task, index: int)</TD></TR>
+<TR><TD ALIGN="LEFT" >+ renderTask(app: TodoistApp, task: Task, tags: HashMap&lt;ObjectId, Tag&gt;): VBox</TD></TR>
+</TABLE>>
+	style=filled
+	margin=0
+	shape=plaintext
+	fillcolor="#FFFFFF"
+];
+
+Section1755976907[
+	label=<<TABLE BORDER="1" CELLBORDER="0" CELLPADDING="4" CELLSPACING="0">
+<TR><TD ALIGN="LEFT" >(C)Section</TD></TR>
+<HR/>
+<TR><TD ALIGN="LEFT" >+   project: Project [0..1]</TD></TR>
+<TR><TD ALIGN="LEFT" >+   title: String [0..1]</TD></TR>
+</TABLE>>
+	style=filled
+	margin=0
+	shape=plaintext
+	fillcolor="#FFFFFF"
+];
+
+SectionController965720726[
+	label=<<TABLE BORDER="1" CELLBORDER="0" CELLPADDING="4" CELLSPACING="0">
+<TR><TD ALIGN="LEFT" >(C)SectionController</TD></TR>
+<HR/>
+<TR><TD ALIGN="LEFT" >-   projectController: ProjectController [0..1]</TD></TR>
+<HR/>
+<TR><TD ALIGN="LEFT" ># documentToModel(doc: Document): Section</TD></TR>
+<TR><TD ALIGN="LEFT" ># modelToDocument(section: Section): Document</TD></TR>
+</TABLE>>
+	style=filled
+	margin=0
+	shape=plaintext
+	fillcolor="#FFFFFF"
+];
+
+Tag1755976907[
+	label=<<TABLE BORDER="1" CELLBORDER="0" CELLPADDING="4" CELLSPACING="0">
+<TR><TD ALIGN="LEFT" >(C)Tag</TD></TR>
+<HR/>
+<TR><TD ALIGN="LEFT" >+   color: String [0..1]</TD></TR>
+<TR><TD ALIGN="LEFT" >+   project: Project [0..1]</TD></TR>
+<TR><TD ALIGN="LEFT" >+   title: String [0..1]</TD></TR>
+</TABLE>>
+	style=filled
+	margin=0
+	shape=plaintext
+	fillcolor="#FFFFFF"
+];
+
+TagController965720726[
+	label=<<TABLE BORDER="1" CELLBORDER="0" CELLPADDING="4" CELLSPACING="0">
+<TR><TD ALIGN="LEFT" >(C)TagController</TD></TR>
+<HR/>
+<TR><TD ALIGN="LEFT" >-   projectController: ProjectController [0..1]</TD></TR>
+<HR/>
+<TR><TD ALIGN="LEFT" ># documentToModel(doc: Document): Tag</TD></TR>
+<TR><TD ALIGN="LEFT" ># modelToDocument(tag: Tag): Document</TD></TR>
+</TABLE>>
+	style=filled
+	margin=0
+	shape=plaintext
+	fillcolor="#FFFFFF"
+];
+
+Task1755976907[
+	label=<<TABLE BORDER="1" CELLBORDER="0" CELLPADDING="4" CELLSPACING="0">
+<TR><TD ALIGN="LEFT" >(C)Task</TD></TR>
+<HR/>
+<TR><TD ALIGN="LEFT" >+   checked: boolean [1]</TD></TR>
+<TR><TD ALIGN="LEFT" >+   description: String [0..1]</TD></TR>
+<TR><TD ALIGN="LEFT" >+   dueDate: LocalDate [0..1]</TD></TR>
+<TR><TD ALIGN="LEFT" >+   project: Project [0..1]</TD></TR>
+<TR><TD ALIGN="LEFT" >+   section: Section [0..1]</TD></TR>
+<TR><TD ALIGN="LEFT" >+   tags: ArrayList&lt;ObjectId&gt; [0..*]</TD></TR>
+<TR><TD ALIGN="LEFT" >+   title: String [0..1]</TD></TR>
+</TABLE>>
+	style=filled
+	margin=0
+	shape=plaintext
+	fillcolor="#FFFFFF"
+];
+
+TaskController965720726[
+	label=<<TABLE BORDER="1" CELLBORDER="0" CELLPADDING="4" CELLSPACING="0">
+<TR><TD ALIGN="LEFT" >(C)TaskController</TD></TR>
+<HR/>
+<TR><TD ALIGN="LEFT" >-   projectController: ProjectController [0..1]</TD></TR>
+<TR><TD ALIGN="LEFT" >-   sectionController: SectionController [0..1]</TD></TR>
+<TR><TD ALIGN="LEFT" >-   tagController: TagController [0..1]</TD></TR>
+<HR/>
+<TR><TD ALIGN="LEFT" ># documentToModel(doc: Document): Task</TD></TR>
+<TR><TD ALIGN="LEFT" ># modelToDocument(task: Task): Document</TD></TR>
+</TABLE>>
+	style=filled
+	margin=0
+	shape=plaintext
+	fillcolor="#FFFFFF"
+];
+
+TaskPage633735869[
+	label=<<TABLE BORDER="1" CELLBORDER="0" CELLPADDING="4" CELLSPACING="0">
+<TR><TD ALIGN="LEFT" >(C)TaskPage</TD></TR>
+<HR/>
+<TR><TD ALIGN="LEFT" >-   task: Task [0..1]</TD></TR>
+</TABLE>>
+	style=filled
+	margin=0
+	shape=plaintext
+	fillcolor="#FFFFFF"
+];
+
+TodoistApp1252453567[
+	label=<<TABLE BORDER="1" CELLBORDER="0" CELLPADDING="4" CELLSPACING="0">
+<TR><TD ALIGN="LEFT" >(C)TodoistApp</TD></TR>
+<HR/>
+<TR><TD ALIGN="LEFT" >+   currentPage: Page [0..1]</TD></TR>
+<TR><TD ALIGN="LEFT" >+   pages: HashMap&lt;String, Page&gt; [0..*]</TD></TR>
+<TR><TD ALIGN="LEFT" >+   panel: Panel [0..1]</TD></TR>
+<TR><TD ALIGN="LEFT" >+   projectController: ProjectController [0..1]</TD></TR>
+<TR><TD ALIGN="LEFT" >+   sectionController: SectionController [0..1]</TD></TR>
+<TR><TD ALIGN="LEFT" >+   stage: Stage [0..1]</TD></TR>
+<TR><TD ALIGN="LEFT" >+   tagController: TagController [0..1]</TD></TR>
+<TR><TD ALIGN="LEFT" >+   taskController: TaskController [0..1]</TD></TR>
+<HR/>
+<TR><TD ALIGN="LEFT" >+ loadPages()</TD></TR>
+<TR><TD ALIGN="LEFT" >+ reload()</TD></TR>
+<TR><TD ALIGN="LEFT" >- renderButton(vbox: VBox, pageName: String, e: EventHandler&lt;ActionEvent&gt;)</TD></TR>
+<TR><TD ALIGN="LEFT" >+ start(primaryStage: Stage)</TD></TR>
+<TR><TD ALIGN="LEFT" >+ switchPage(name: String)</TD></TR>
+</TABLE>>
+	style=filled
+	margin=0
+	shape=plaintext
+	fillcolor="#FFFFFF"
+];
+} 
+} 
+
+'edges    
+AddSectionModal1755973063 -> ProjectPage633735869[label="page
+[0..1]"];
+BaseController1252453567 -> ProjectController965720726[arrowhead=none, arrowtail=empty, dir=both];
+BaseController1252453567 -> SectionController965720726[arrowhead=none, arrowtail=empty, dir=both];
+BaseController1252453567 -> TagController965720726[arrowhead=none, arrowtail=empty, dir=both];
+BaseController1252453567 -> TaskController965720726[arrowhead=none, arrowtail=empty, dir=both];
+BaseModal1252453567 -> AddProjectModal1755973063[arrowhead=none, arrowtail=empty, dir=both];
+BaseModal1252453567 -> AddSectionModal1755973063[arrowhead=none, arrowtail=empty, dir=both];
+BaseModal1252453567 -> EditTagsModal1755973063[arrowhead=none, arrowtail=empty, dir=both];
+BaseModal1252453567 -> TodoistApp1252453567[label="app
+[0..1]"];
+BaseModel1252453567 -> Project1755976907[arrowhead=none, arrowtail=empty, dir=both];
+BaseModel1252453567 -> Section1755976907[arrowhead=none, arrowtail=empty, dir=both];
+BaseModel1252453567 -> Tag1755976907[arrowhead=none, arrowtail=empty, dir=both];
+BaseModel1252453567 -> Task1755976907[arrowhead=none, arrowtail=empty, dir=both];
+Page1252453567 -> DashboardPage633735869[arrowhead=none, arrowtail=empty, dir=both];
+Page1252453567 -> ProjectPage633735869[arrowhead=none, arrowtail=empty, dir=both];
+Page1252453567 -> TaskPage633735869[arrowhead=none, arrowtail=empty, dir=both];
+Page1252453567 -> TodoistApp1252453567[label="app
+[0..1]"];
+ProjectPage633735869 -> Project1755976907[label="project
+[0..1]"];
+ProjectPage633735869 -> Section1755976907[label="sections
+[0..*]"];
+ProjectPage633735869 -> Tag1755976907[label="tags
+[0..*]"];
+ProjectPage633735869 -> Task1755976907[label="tasks
+[0..*]"];
+SectionController965720726 -> ProjectController965720726[label="projectController
+[0..1]"];
+TagController965720726 -> ProjectController965720726[label="projectController
+[0..1]"];
+Task1755976907 -> Project1755976907[label="project
+[0..1]"];
+Task1755976907 -> Section1755976907[label="section
+[0..1]"];
+TaskController965720726 -> ProjectController965720726[label="projectController
+[0..1]"];
+TaskController965720726 -> SectionController965720726[label="sectionController
+[0..1]"];
+TaskController965720726 -> TagController965720726[label="tagController
+[0..1]"];
+TaskPage633735869 -> Task1755976907[label="task
+[0..1]"];
+TodoistApp1252453567 -> Page1252453567[label="currentPage
+[0..1]"];
+TodoistApp1252453567 -> Page1252453567[label="pages
+[0..*]"];
+TodoistApp1252453567 -> ProjectController965720726[label="projectController
+[0..1]"];
+TodoistApp1252453567 -> SectionController965720726[label="sectionController
+[0..1]"];
+TodoistApp1252453567 -> TagController965720726[label="tagController
+[0..1]"];
+TodoistApp1252453567 -> TaskController965720726[label="taskController
+[0..1]"];
+    
+}
+@enduml
